@@ -1,8 +1,10 @@
 import discord
+import string
 import os
 
 # PARAMS
 VM_NUMBER = 8
+MOUNT_DIRS = ["bin", "usr", "lib"]
 ########
 
 
@@ -34,32 +36,37 @@ def getToken():
 
 # Executes command as sudo
 def execute(s):
+    print(s)
     os.system(s)
 
 # Removes instances of mounted Vms
 def removeVms(n):
     for i in range(n):
-        vmPath = './root' + srt(i)
+        vmPath = './root' + str(i)
         if os.path.isdir(vmPath):
             # Umount and remove
-            execute('sudo umount ' vmPath)
-            execute('rm -R ' + vmPath)
+            for d in MOUNT_DIRS:
+                execute('sudo umount ' + vmPath + "/" + d)
+            execute('sudo rm -R ' + vmPath)
     return
 
 # Creates mounted Vms
 def createVms(n):
     for i in range(n):
-        vmPath = './root' + srt(i)
-        if os.path.isdir(vmPath):
-            execute('mkdir ' + vmPath)
-            execute('sudo mount --bind ./root ' + vmPath)
+        vmPath = './root' + str(i)
+        if not os.path.isdir(vmPath):
+            execute('mkdir ' + vmPath + " " + vmPath + "/home")
+            for d in MOUNT_DIRS:
+                execute('mkdir ' + vmPath + "/" + d)
+                execute('sudo mount --bind ./root/' + d + " " + vmPath + "/" + d)
     return
 
 def restartVMs(n):
+    print("Restarting VMs, this could take a while...")
     removeVms(n)
     createVms(n)
     print("Successfully restarted VMs!")
     return
 
-restartVMs(n)
+restartVMs(VM_NUMBER)
 client.run(getToken())
