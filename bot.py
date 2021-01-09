@@ -5,6 +5,7 @@ import os
 # PARAMS
 VM_NUMBER = 8
 MOUNT_DIRS = ["bin", "usr", "lib"]
+AUTH_ID = 
 ########
 
 
@@ -16,7 +17,7 @@ async def sendMessage(textFormatted, channel):
 @client.event
 async def on_message(msg):
     content = msg.content
-    await sendMessage(content, msg.channel)
+    await sendMessage(msg.author.id, msg.channel)
 
 @client.event
 async def on_ready():
