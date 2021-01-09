@@ -1,4 +1,10 @@
 import discord
+import os
+
+# PARAMS
+VM_NUMBER = 8
+########
+
 
 client = discord.Client()
 
@@ -26,4 +32,34 @@ def getToken():
     f.close()
     return res
 
+# Executes command as sudo
+def execute(s):
+    os.system(s)
+
+# Removes instances of mounted Vms
+def removeVms(n):
+    for i in range(n):
+        vmPath = './root' + srt(i)
+        if os.path.isdir(vmPath):
+            # Umount and remove
+            execute('sudo umount ' vmPath)
+            execute('rm -R ' + vmPath)
+    return
+
+# Creates mounted Vms
+def createVms(n):
+    for i in range(n):
+        vmPath = './root' + srt(i)
+        if os.path.isdir(vmPath):
+            execute('mkdir ' + vmPath)
+            execute('sudo mount --bind ./root ' + vmPath)
+    return
+
+def restartVMs(n):
+    removeVms(n)
+    createVms(n)
+    print("Successfully restarted VMs!")
+    return
+
+restartVMs(n)
 client.run(getToken())
