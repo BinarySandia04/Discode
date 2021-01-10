@@ -6,7 +6,8 @@ import os
 
 # PARAMS
 VM_MAX_NUMBER = 128
-MOUNT_DIRS = ["bin", "usr", "lib"]
+MOUNT_DIRS = {"bin": "root/bin", "usr": "/usr", "lib": "/lib"}
+OTHER_DIRS = ["home"]
 ADMIN_ID = 342287101225598987 # Syndria#2417
 PREFIX = {"cpp": "```cpp\n//run", "py": "```py\n#run", "python": "```python\n#run"}
 ########
@@ -121,8 +122,39 @@ async def wait(i):
 # Funcions core, text és el codi trimmed ja llest per passar-ho
 async def startCppProgram(msg, author, text):
     channel = channel_assosiations[author]
-    await sendMessage("C++ is not supported yet!", channel)
+    
+    # Reservar una sessio per al nostre usuari:
+    vm_index = assignVm(author)
+    
+    if vm_index != -1: 
+        # Write python code in the vm
+        cppCode = open("root" + str(vm_index) + "/main.cc", "w")
+        cppCode.write(text)
+        cppCode.close()
+
+        # Enter chroot environment
+        executeScreen(str(vm_index), "sudo chroot --userspec=dragoconda root" + str(vm_index))
+        # Run python file
+        executeScreen(str(vm_index), "cd home && g++ ../main.cc -o main && ./main")
+        # Exit chroot environment
+        executeScreen(str(vm_index), "exit")
+        
+        statusMsg = await sendMessage("Running the code...", channel)
+
+        await wait(4)
+
+        # Get the result
+        result = discordTrim(pythonGetOutput(getScreenLog(str(vm_index)), True))
+        print("RES: " + result)
+
+        removeVm(author)
+        await statusMsg.edit(content="Done!")
+        await sendMessage(result, channel)
+    else:
+        await sendMessage("Sorry, there are no VMs free right now. Maybe the bot is oversaturated", channel)
     freeUserFromDcChannel(author)
+
+
 
 async def startPythonProgram(msg, author, text):
     channel = channel_assosiations[author]
@@ -223,9 +255,13 @@ def createVm(n):
     destroyVm(n)
     
     execute('mkdir ' + vmPath + " " + vmPath + "/home")
-    for d in MOUNT_DIRS:
+    for d in MOUNT_DIRS.keys():
         execute('mkdir ' + vmPath + "/" + d)
-        execute('sudo mount --bind ./root/' + d + " " + vmPath + "/" + d)
+        execute("sudo mount --bind " + MOUNT_DIRS[d] + " " + vmPath + "/" + d)
+    for d in OTHER_DIRS:
+        execute('mkdir ' + vmPath + "/" + d)
+        execute('sudo chown dragoconda ' + vmPath + "/" + d)
+        execute('sudo chmod ug=rwx ' + vmPath +"/" + d)
 
 async def some_function():
     await asyncio.sleep(5)
