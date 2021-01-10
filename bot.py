@@ -3,6 +3,8 @@ import string
 import asyncio
 import time
 import os
+import re
+from sys import executable
 
 # PARAMS
 VM_MAX_NUMBER = 128
@@ -19,6 +21,8 @@ vm_assosiations = {}
 user_assosiations = {}
 
 channel_assosiations = {}
+
+ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
 def discordTrim(text):
     if len(text) < 1994:
@@ -84,6 +88,8 @@ def getScreenLog(name):
     f = open("screen." + str(name) + ".log", "r")
     res = f.read()
     f.close()
+    res = ansi_escape.sub('', res)
+    print(res)
     return res
 
 def createScreen(name):
@@ -158,7 +164,7 @@ async def startCppProgram(msg, author, text):
 
 async def startPythonProgram(msg, author, text):
     channel = channel_assosiations[author]
-    
+
     # Reservar una sessio per al nostre usuari:
     vm_index = assignVm(author)
     
@@ -180,7 +186,9 @@ async def startPythonProgram(msg, author, text):
         await wait(2)
 
         # Get the result
-        result = discordTrim(pythonGetOutput(getScreenLog(str(vm_index)), True))
+        log = getScreenLog(str(vm_index))
+        result = discordTrim(pythonGetOutput(log, True))
+        print("LOG: " + log)
         print("RES: " + result)
 
         removeVm(author)
@@ -190,34 +198,76 @@ async def startPythonProgram(msg, author, text):
         await sendMessage("Sorry, there are no VMs free right now. Maybe the bot is oversaturated", channel)
     freeUserFromDcChannel(author)
 
+async def restartServer():
+    execute("git fetch && git pull")
+    await client.close()
+    os.execv(executable, [executable, __file__])
+    exit()
+
 async def react(msg, emoji):
     await msg.add_reaction(emoji)
+
+async def sendHelpMessage(channel):
+    with open("help.txt", "r") as helpfile:
+      await sendMessage(helpfile.read(), channel)
+
+def addLineNumber(text):
+    l = text.split("\n")
+    r = ""
+    i = 0
+    for p in l:
+        if i > 0 and i < len(l) - 1:
+            r += str(i) + " " + p + "\n"
+        else:
+            r += p + "\n"
+        i += 1
+    return r
+
+async def sendCodeMessage(text, channel):
+    trimmed = addLineNumber(text)
+    await sendMessage("**Your Code:**", channel)
+    await sendMessage(trimmed, channel)
 
 @client.event
 async def on_message(msg):
     content = msg.content
     author = msg.author.id
+    channel = msg.channel
 
     if author == client.user.id:
         return
     
-    if content == "!servers":
+    if content == "!a servers":
         if author == ADMIN_ID:
-            await sendMessage(getGuilds(), msg.channel)
+            await sendMessage(getGuilds(), channel)
     
+    if content == "!anaconda":
+        await sendHelpMessage(channel)
+    
+    if content == "!a r":
+        if author == ADMIN_ID:
+            await sendMessage("Restart!", channel)
+            await restartServer()
+
     elif content.startswith(PREFIX["cpp"]):
         # c++
         if author in user_assosiations:
             return
+        
+        await sendCodeMessage(content, channel)
 
-        setUserToDcChannel(author, msg.channel)
+        await msg.delete()
+        setUserToDcChannel(author, channel)
         await startCppProgram(msg, author, content[len(PREFIX["cpp"]):len(content)-3])
     elif content.startswith(PREFIX["py"]) or content.startswith(PREFIX["python"]):
         # python
         if author in user_assosiations:
             return
+        
+        await sendCodeMessage(content, channel)
 
-        setUserToDcChannel(author, msg.channel)
+        await msg.delete()
+        setUserToDcChannel(author, channel)
         await startPythonProgram(msg, author, content[len(PREFIX["py"]):len(content)-3])
 
 @client.event
