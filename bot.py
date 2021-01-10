@@ -4,6 +4,7 @@ import asyncio
 import time
 import os
 import re
+import subprocess
 from sys import executable
 
 # PARAMS
@@ -11,6 +12,7 @@ VM_MAX_NUMBER = 128
 MOUNT_DIRS = {"bin": "root/bin", "usr": "/usr", "lib": "/lib"}
 OTHER_DIRS = ["home"]
 ADMIN_ID = 342287101225598987 # Syndria#2417
+GITHUB_REPO = "https://github.com/BinarySandia04/Dragoconda"
 PREFIX = {"cpp": "```cpp\n//run", "py": "```py\n#run", "python": "```python\n#run"}
 ########
 SCREEN_PREFIX = "dragoconda"
@@ -66,6 +68,16 @@ def assignVm(user):
 
             return i
     return -1
+
+def getLastCommitInfo():
+    execute('git log --pretty=format:"%h - %an, %ar : %s" | head -n 1 > .lastcommit')
+    execute('git log --pretty=format:"%H" >> .lastcommit')
+    r = "No info"
+    with open(".lastcommit", "r") as cfile:
+        r = cfile.read()
+    os.remove(".lastcommit")
+    return r.split("\n")
+
 
 # Borra la VM i la screen a un usuari
 def removeVm(user):
@@ -248,6 +260,13 @@ async def on_message(msg):
         if author == ADMIN_ID:
             await sendMessage("Restart!", channel)
             await restartServer()
+    
+    if content == "!a c":
+        l = getLastCommitInfo()
+        res = l[0]
+        com = l[1]
+        await sendMessage("**LAST COMMIT INFO:**\n```" + res + "```", channel)
+        await sendMessage(GITHUB_REPO + "/commit/" + com, channel)
 
     elif content.startswith(PREFIX["cpp"]):
         # c++
