@@ -1,0 +1,19 @@
+{
+    "screen_prefix": "discode",
+    "help_file": "help.txt",
+    "max_vm_instances": 128,
+    "mount_dirs":
+        {
+            "bin": "root/bin",
+            "usr": "/usr",
+            "lib": "/lib"
+        },
+    "other_dirs": ["home"],
+    "admin_id": 342287101225598987,
+    "github_repo": "https://github.com/BinarySandia04/Discode",
+    "prefixes":
+    {
+        "Cpp": ["```cpp", "```c++"],
+        "Python": ["```py", "```python"]
+    }
+}
