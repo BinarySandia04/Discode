@@ -249,19 +249,19 @@ async def on_message(msg):
     if author == client.user.id:
         return
     
-    if content == "!a servers":
+    if content == "!dc servers":
         if author == ADMIN_ID:
             await sendMessage(getGuilds(), channel)
     
-    if content == "!anaconda":
+    if content == "!dc":
         await sendHelpMessage(channel)
     
-    if content == "!a r":
+    if content == "!dc r":
         if author == ADMIN_ID:
             await sendMessage("Restart!", channel)
             await restartServer()
     
-    if content == "!a c":
+    if content == "!dc c":
         l = getLastCommitInfo()
         res = l[0]
         com = l[1]
