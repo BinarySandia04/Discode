@@ -16,35 +16,35 @@ class Base:
         await asyncio.sleep(i)
 
     def enterChroot(self):
-        box.executeScreen(str(vm_index), "sudo chroot --userspec=dragoconda root" + str(vm_index))
+        box.executeScreen(str(self.vm_index), "sudo chroot --userspec=dragoconda root" + str(self.vm_index))
     
     def execute(self, code):
         box.execute(code)
     
     def vmExecute(self, code):
-        box.executeScreen(str(vm_index), code)
+        box.executeScreen(str(self.vm_index), code)
     
     def getCompleteLog(self):
-        return box.getScreenLog(str(vm_index))
+        return box.getScreenLog(str(self.vm_index))
     
     def startRecording(self):
-        _recordStart = len(getCompleteLog())
+        _recordStart = len(self.getCompleteLog())
     
     def endRecording(self):
-        _recordEnd = len(getCompleteLog())
+        _recordEnd = len(self.getCompleteLog())
     
     def destroySession(self):
-        box.destroyScreen(vm_index)
+        box.destroyScreen(self.vm_index)
     
     def getLog(self):
-        log = getCompleteLog().split("\n")
+        log = self.getCompleteLog().split("\n")
         res = ""
-        for i in range(_recordStart, _recordEnd):
+        for i in range(self._recordStart, self._recordEnd):
             res += log[i] + "\n"
         return res
     
     def saveFile(self, content, path):
-        with open("root" + str(vm_index) + "/" + path, "w") as f:
+        with open("root" + str(self.vm_index) + "/" + path, "w") as f:
             f.write(content)
 
     

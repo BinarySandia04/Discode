@@ -4,15 +4,16 @@ import settings
 from safebox.cmd_utils import execute, createScreen, destroyScreen
 
 class VMmanager:
+    
+    vm_assosiations = {}
+    user_assosiations = {}
+    channel_assosiations = {}
+    
     def __init__(self, max_vm_number, mount_dir_info, other_dirs):
         self.max_vm = max_vm_number
         self.mount_dirs = mount_dir_info
         self.other_dirs = other_dirs
         
-        self.vm_assosiations = {}
-        self.user_assosiations = {}
-        self.channel_assosiations = {}
-    
     # Fixa un usuari a un discord channel
     def setUserToDcChannel(self, user, channel):
         self.channel_assosiations[user] = channel

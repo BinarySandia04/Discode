@@ -4,5 +4,5 @@ js = {}
 
 r = ""
 with open("settings.json", "r") as jsFile:
-    js = jsFile.read()
+    js = json.loads(jsFile.read())
 del r

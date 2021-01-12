@@ -1,4 +1,6 @@
-class Cpp:
+from .base import Base
+
+class Cpp(Base):
     async def run(self, code, discode, author, channel):
         self.saveFile(code, "home/main.cc")
 

@@ -7,24 +7,24 @@ import os
 
 from sys import executable
 
-from safebox import vm
+from safebox import vm as viem
 from safebox.cmd_utils import readFile, execute
 import languages
 
 import settings
 
 class Discode(discord.Client):
+    lastMessages = {}
+    
     def __init__(self):
         """
         Starts the bot
         """
         super().__init__()
 
-        self.vm = vm.VMmanager(settings.js["max_vm_instances"], settings.js["mount_dirs"], settings.js["other_dirs"])
+        self.vm = viem.VMmanager(settings.js["max_vm_instances"], settings.js["mount_dirs"], settings.js["other_dirs"])
 
         self.run(self.getToken())
-
-        self.lastMessages = {}
     
     def getToken(self):
         """
@@ -90,7 +90,6 @@ class Discode(discord.Client):
         """
         Gets in which language should the code be ran depending on the prefix
         """
-
         prefixes = settings.js["prefixes"]
         prefix = code.split("\n")[0]
         for l in prefixes.keys():
@@ -101,7 +100,7 @@ class Discode(discord.Client):
 
 
     def getLastMessageContent(self, author):
-        return lastMessages[author]
+        return self.lastMessages[author]
 
     def getRawCode(self, text):
         l = text.split("\n")
@@ -147,66 +146,67 @@ class Discode(discord.Client):
 
         if author == self.user.id:
             return
-        
-        lastMessages[msg.author.id] = msg.content # Cache the content!
+       
+        if content.startswith("```"):
+            self.lastMessages[msg.author.id] = msg.content # Cache the content!
         
         if content == "!dc servers":
             if author == settings.js["admin_id"]:
-                await sendMessage(getGuilds(), channel)
+                await self.sendMessage(self.getGuilds(), channel)
         
         if content == "!dc":
-            await sendHelpMessage(channel)
+            await self.sendHelpMessage(channel)
         
         if content == "!dc r":
             if author == settings.js["admin_id"]:
-                await sendMessage("Restart!", channel)
-                await restartServer()
+                await self.sendMessage("Restart!", channel)
+                await self.restartServer()
         
         if content == "!dc c":
-            l = getLastCommitInfo()
+            l = self.getLastCommitInfo()
             res = l[0]
             com = l[1]
-            await sendMessage("**LAST COMMIT INFO:**\n```" + res + "```", channel)
-            await sendMessage(settings.js["github_repo"] + "/commit/" + com, channel)
+            await self.sendMessage("**LAST COMMIT INFO:**\n```" + res + "```", channel)
+            await self.sendMessage(settings.js["github_repo"] + "/commit/" + com, channel)
 
         if content == "!dc run":
-            if author in vm.user_assosiations:
-                await sendMessage("**You are already running a code!**")
+            if author in self.vm.user_assosiations:
+                await self.sendMessage("**You are already running a code!**", channel)
                 return
 
-            lcontent = getLastMessageContent(author) # Contains the content of the raw message
-            codemodule = getCodeModule(lcontent)
+            lcontent = self.getLastMessageContent(author) # Contains the content of the raw message
+            codemodule = self.getCodeModule(lcontent)
             
             if codemodule == None:
-                await sendMessage("This code is not valid or there is no language specified")
+                await self.sendMessage("This code is not valid or there is no language specified", channel)
                 return
             
             # Now we know that we should run cpp for example,
             # let's start a instance of a vm for the user and run the module,
             # but first let's format his code
 
-            formatCode(msg, lcontent)
+            self.formatCode(msg, lcontent)
 
             # Now let's create the vm
 
-            vm.setUserToDcChannel(author, channel)
-            vm_index = vm.assignVm(author)
+            self.vm.setUserToDcChannel(author, channel)
+            vm_index = self.vm.assignVm(author)
 
             # Check if that ran successfully
 
             if vm_index == -1:
-                await sendMessage("Sorry, there are no VMs free right now. Maybe the bot is oversaturated", channel)
+                await self.sendMessage("Sorry, there are no VMs free right now. Maybe the bot is oversaturated", channel)
                 return
             
             # Instance the class!
             #TODO: GET CODE WITHOUT PREFIX
             run = eval("languages." + codemodule)(vm_index)
-            await run.run(getRawCode(lcontent), self, author, channel)
+            await run.run(self.getRawCode(lcontent), self, author, channel)
 
             # Now remove the author
-            vm.removeVm(author)
+            self.vm.removeVm(author)
 
-            vm.freeUserFromDcChannel(author)
+            self.vm.freeUserFromDcChannel(author)
 
     async def on_ready(self):
         """
