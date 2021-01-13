@@ -2,7 +2,7 @@
 ## What is Discode?
 Discode is a Discord Bot capable of executing code inside Discord itself.
 Currently Discode is compatible with these languages:
-- Python
+- ~~Python~~
 - C++
 ## Bot usage
 ### Help message
