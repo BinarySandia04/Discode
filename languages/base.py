@@ -1,6 +1,7 @@
 import safebox.vm as vm
 import safebox.cmd_utils as box
 import asyncio
+import settings
 
 class Base:
     def __init__(self, vm_index):
@@ -16,7 +17,7 @@ class Base:
         await asyncio.sleep(i)
 
     def enterChroot(self):
-        box.executeScreen(str(self.vm_index), "sudo chroot --userspec=dragoconda root" + str(self.vm_index))
+        box.executeScreen(str(self.vm_index), "sudo chroot --userspec=" + settings.js["chroot_username"] + " root" + str(self.vm_index))
     
     def execute(self, code):
         box.execute(code)
@@ -28,19 +29,23 @@ class Base:
         return box.getScreenLog(str(self.vm_index))
     
     def startRecording(self):
-        _recordStart = len(self.getCompleteLog())
+        self._recordStart = len(self.getCompleteLog().split("\n")) + 1
+        return self._recordStart
     
     def stopRecording(self):
-        _recordEnd = len(self.getCompleteLog())
+        self._recordEnd = len(self.getCompleteLog().split("\n")) - 1
+        return self._recordEnd
     
     def destroySession(self):
         box.destroyScreen(self.vm_index)
     
     def getLog(self):
         log = self.getCompleteLog().split("\n")
+        print(len(log))
         res = ""
-        for i in range(self._recordStart, self._recordEnd):
+        for i in range(self._recordStart + 1, self._recordEnd):
             res += log[i] + "\n"
+        print("Ok res len is " + str(len(res)))
         return res
     
     def saveFile(self, content, path):

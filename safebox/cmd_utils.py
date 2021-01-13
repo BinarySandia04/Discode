@@ -5,9 +5,12 @@ import re
 
 from pathlib import Path
 
-PYPATH = str(Path(__file__).parent.absolute()) + "/"
+PYPATH = str(Path(__file__).parent.absolute().parent.absolute()) + "/"
 
 ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+
+def getPath():
+    return PYPATH
 
 # Executes command
 def execute(s):

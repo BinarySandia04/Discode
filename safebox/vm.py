@@ -1,7 +1,7 @@
 # File for vm management
 import os
 import settings
-from safebox.cmd_utils import execute, createScreen, destroyScreen
+from safebox.cmd_utils import execute, createScreen, destroyScreen, getPath
 
 class VMmanager:
     
@@ -10,6 +10,8 @@ class VMmanager:
     channel_assosiations = {}
     
     def __init__(self, max_vm_number, mount_dir_info, other_dirs):
+        self.destroyAllScreens()
+
         self.max_vm = max_vm_number
         self.mount_dirs = mount_dir_info
         self.other_dirs = other_dirs
@@ -39,16 +41,15 @@ class VMmanager:
     
 
     def createVm(self, n):
-        vmPath = './root' + str(n)
+        vmPath = getPath() + 'root' + str(n)
         self.destroyVm(n)
-        
-        execute('mkdir ' + vmPath + " " + vmPath + "/home")
+        execute('mkdir ' + vmPath)
         for d in self.mount_dirs.keys():
             execute('mkdir ' + vmPath + "/" + d)
             execute("sudo mount --bind " + self.mount_dirs[d] + " " + vmPath + "/" + d)
         for d in self.other_dirs:
             execute('mkdir ' + vmPath + "/" + d)
-            execute('sudo chown dragoconda ' + vmPath + "/" + d)
+            execute('sudo chown ' + settings.js["chroot_username"] + ' ' + vmPath + "/" + d)
             execute('sudo chmod ug=rwx ' + vmPath +"/" + d)
 
     # Borra la VM i la screen a un usuari
@@ -61,8 +62,11 @@ class VMmanager:
             self.vm_assosiations.pop(i, None)
             self.user_assosiations.pop(user, None)
     
+    def destroyAllScreens(self):
+        execute("screen -ls | grep '" + settings.js["screen_prefix"] + "' | awk '{print $1}' | xargs -I % -t screen -X -S % quit")
+
     def destroyVm(self, n):
-        vmPath = './root' + str(n)
+        vmPath = getPath() + 'root' + str(n)
         if os.path.isdir(vmPath):
             # Umount and remove
             for d in settings.js["mount_dirs"].keys():

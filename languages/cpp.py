@@ -6,14 +6,19 @@ class Cpp(Base):
 
         self.enterChroot()
 
-        self.startRecording()
         self.vmExecute("cd home && g++ main.cc -o main && ./main")
-        self.stopRecording()
+        
+        await discode.sendMessage("Running...", channel)
+
+        print(self.startRecording())
+        await self.wait(5)
+        print(self.stopRecording())
 
         log = self.getLog()
+     
+        print(len(log))
+        
+        await discode.sendMessage("**CODE OUTPUT:**", channel)
+        await discode.sendMessage("```" + log + "```", channel)
 
         self.destroySession()
-
-        await self.wait(4)
-        
-        await discode.sendMessage(log, channel)

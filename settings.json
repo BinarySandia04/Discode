@@ -1,10 +1,11 @@
 {
-    "screen_prefix": "discode",
+    "screen_prefix": "r_discode",
     "help_file": "help.txt",
+    "chroot_username": "discode",
     "max_vm_instances": 128,
     "mount_dirs":
         {
-            "bin": "root/bin",
+            "bin": "/bin",
             "usr": "/usr",
             "lib": "/lib"
         },

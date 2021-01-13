@@ -75,6 +75,7 @@ class Discode(discord.Client):
         Deletes and modifies the user's code message to add numbered line support
         TODO: Add user info
         """
+        print("? xD")
 
         channel = msg.channel
         author  = msg.author
@@ -104,7 +105,7 @@ class Discode(discord.Client):
 
     def getRawCode(self, text):
         l = text.split("\n")
-        l = l[1:len(l)-2]
+        l = l[1:len(l)-1]
         r = ""
         for line in l:
             r += line + "\n"
@@ -185,7 +186,7 @@ class Discode(discord.Client):
             # let's start a instance of a vm for the user and run the module,
             # but first let's format his code
 
-            self.formatCode(msg, lcontent)
+            await self.formatCode(msg, lcontent)
 
             # Now let's create the vm
 
