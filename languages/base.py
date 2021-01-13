@@ -21,7 +21,10 @@ class Base:
     
     def execute(self, code):
         box.execute(code)
-    
+   
+    def isScreenExecuting(self):
+        return box.isScreenExecuting(self.vm_index)
+
     def vmExecute(self, code):
         box.executeScreen(str(self.vm_index), code)
     
@@ -29,11 +32,11 @@ class Base:
         return box.getScreenLog(str(self.vm_index))
     
     def startRecording(self):
-        self._recordStart = len(self.getCompleteLog().split("\n")) + 1
+        self._recordStart = len(self.getCompleteLog().split("\n"))
         return self._recordStart
     
     def stopRecording(self):
-        self._recordEnd = len(self.getCompleteLog().split("\n")) - 1
+        self._recordEnd = len(self.getCompleteLog().split("\n"))
         return self._recordEnd
     
     def destroySession(self):
@@ -43,7 +46,7 @@ class Base:
         log = self.getCompleteLog().split("\n")
         print(len(log))
         res = ""
-        for i in range(self._recordStart + 1, self._recordEnd):
+        for i in range(self._recordStart, self._recordEnd):
             res += log[i] + "\n"
         print("Ok res len is " + str(len(res)))
         return res

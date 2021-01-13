@@ -23,6 +23,17 @@ def screenCommand(name, command):
 def executeScreen(name, command):
     execute("screen -S " + settings.js["screen_prefix"] + str(name) + " -X stuff \"" + command + "\n\"")
 
+# Return true if the file has something
+def isScreenExecuting(name):
+    # XD
+    execute("echo $(ps -el | grep $(ps -el | grep $(ps -el | grep $(ps -el | grep $(screen -ls | grep " + settings.js["screen_prefix"] + str(name) + " | cut -f1 -d'.' | sed 's/\W//g') | grep bash | awk '{print $4}') | grep sudo | awk '{print $4}') | grep bash | awk '{print $4}') | grep -v bash) > .stmp" + str(name))
+    s = readFile(".stmp" + str(name))
+    print("INSIDE THERE IS " + s)
+    execute("rm .stmp" + str(name))
+    if len(s) < 4:
+        return False
+    else:
+        return True
 
 # Creates an screen and restarts if it already exists
 def createScreen(name):

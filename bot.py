@@ -16,6 +16,8 @@ import settings
 class Discode(discord.Client):
     lastMessages = {}
     
+    messageHistory = {}
+
     def __init__(self):
         """
         Starts the bot
@@ -144,6 +146,10 @@ class Discode(discord.Client):
         content = msg.content
         author = msg.author.id
         channel = msg.channel
+        
+        if author in self.messageHistory:
+            self.messageHistory[author].append(content)
+            print("APPENDED " + content)
 
         if author == self.user.id:
             return
@@ -174,6 +180,8 @@ class Discode(discord.Client):
             if author in self.vm.user_assosiations:
                 await self.sendMessage("**You are already running a code!**", channel)
                 return
+            
+            self.messageHistory[author] = []
 
             lcontent = self.getLastMessageContent(author) # Contains the content of the raw message
             codemodule = self.getCodeModule(lcontent)
@@ -203,6 +211,8 @@ class Discode(discord.Client):
             #TODO: GET CODE WITHOUT PREFIX
             run = eval("languages." + codemodule)(vm_index)
             await run.run(self.getRawCode(lcontent), self, author, channel)
+
+            self.messageHistory.pop(author, None)
 
             # Now remove the author
             self.vm.removeVm(author)
