@@ -14,7 +14,8 @@ def getPath():
 
 # Executes command
 def execute(s):
-    print(s)
+    if settings.js["debug"]:
+        print(s)
     os.system(s)
 
 def screenCommand(name, command):
@@ -28,8 +29,6 @@ def isScreenExecuting(name):
     # XD
     execute("echo $(ps -el | grep $(ps -el | grep $(ps -el | grep $(ps -el | grep $(screen -ls | grep " + settings.js["screen_prefix"] + str(name) + " | cut -f1 -d'.' | sed 's/\W//g') | grep bash | awk '{print $4}') | grep sudo | awk '{print $4}') | grep bash | awk '{print $4}') | grep -v bash) > .stmp" + str(name))
     s = readFile(".stmp" + str(name))
-    print("INSIDE THERE IS " + s)
-    execute("rm .stmp" + str(name))
     if len(s) < 4:
         return False
     else:
@@ -48,7 +47,8 @@ def destroyScreen(name):
    
 def getScreenLog(name):
     res = ansi_escape.sub('', readFile("screen." + str(name) + ".log"))
-    print(res)
+    if(settings.js["debug"]):
+        print(res)
     return res
 
 def readFile(fileName):

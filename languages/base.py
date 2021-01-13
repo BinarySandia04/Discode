@@ -44,11 +44,9 @@ class Base:
     
     def getLog(self):
         log = self.getCompleteLog().split("\n")
-        print(len(log))
         res = ""
         for i in range(self._recordStart, self._recordEnd):
             res += log[i] + "\n"
-        print("Ok res len is " + str(len(res)))
         return res
     
     def saveFile(self, content, path):

@@ -16,5 +16,6 @@
     {
         "Cpp": ["```cpp", "```c++"],
         "Python": ["```py", "```python"]
-    }
+    },
+    "debug": false
 }

@@ -77,7 +77,6 @@ class Discode(discord.Client):
         Deletes and modifies the user's code message to add numbered line support
         TODO: Add user info
         """
-        print("? xD")
 
         channel = msg.channel
         author  = msg.author
