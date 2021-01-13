@@ -20,12 +20,6 @@ You can execute code using different prefixes stablished inside the `PREFIX` glo
 ### C++
 ```cpp
     ```cpp
-    <Insert your code here>
-    ```
-```
-Example:
-```cpp
-    ```cpp
     #include <iostream>
     using namespace std;
     int main(){
@@ -34,12 +28,6 @@ Example:
     ```
 ```
 ### Python
-```py
-    ```py
-    <Insert your code here>
-    ```
-```
-Example:
 ```py
     ```py
     print("This is also cool!")
