@@ -3,6 +3,10 @@ import os
 import settings
 import re
 
+from pathlib import Path
+
+PYPATH = str(Path(__file__).parent.absolute()) + "/"
+
 ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
 
 # Executes command
@@ -35,6 +39,6 @@ def getScreenLog(name):
 
 def readFile(fileName):
     r = ""
-    with open(fileName, "r") as rfile:
+    with open(PYPATH + fileName, "r") as rfile:
         r = rfile.read()
     return r
