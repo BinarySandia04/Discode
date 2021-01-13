@@ -30,7 +30,7 @@ class Base:
     def startRecording(self):
         _recordStart = len(self.getCompleteLog())
     
-    def endRecording(self):
+    def stopRecording(self):
         _recordEnd = len(self.getCompleteLog())
     
     def destroySession(self):

@@ -68,7 +68,7 @@ class Discode(discord.Client):
         """
         Sends the help message
         """
-        await sendMessage(readFile(settings.js["help_file"]), channel)
+        await self.sendMessage(readFile(settings.js["help_file"]), channel)
 
     async def formatCode(self, msg, code):
         """
@@ -83,8 +83,8 @@ class Discode(discord.Client):
 
         await msg.delete()
 
-        await sendMessage("**Your Code:**", channel)
-        await sendMessage(trimmed, channel)
+        await self.sendMessage("**Your Code:**", channel)
+        await self.sendMessage(trimmed, channel)
 
     def getCodeModule(self, code):
         """
