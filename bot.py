@@ -8,14 +8,15 @@ import os
 from sys import executable
 
 from safebox import vm as viem
-from safebox.cmd_utils import readFile, execute
+from safebox.cmd_utils import readFile, execute, getPath, writeFile
 import languages
 
 import settings
 
+
 class Discode(discord.Client):
     lastMessages = {}
-    
+    codeHistory = {} 
     messageHistory = {}
 
     def __init__(self):
@@ -53,6 +54,13 @@ class Discode(discord.Client):
         await self.close()
         os.execv(executable, [executable, __file__])
         exit()
+    
+    async def sendCode(self, code, fileName, channel):
+        writeFile(fileName, code)
+        await self.sendFile("Here you have your code!", fileName, channel)
+
+    async def sendFile(self, text, filePath, channel):
+        await channel.send(text, file=discord.File(getPath() + filePath))
 
     async def sendMessage(self, textFormatted, channel):
         """
@@ -95,7 +103,7 @@ class Discode(discord.Client):
         prefixes = settings.js["prefixes"]
         prefix = code.split("\n")[0]
         for l in prefixes.keys():
-            for i in prefixes[l]:
+            for i in prefixes[l]["prefixes"]:
                 if prefix == i:
                     return l
         return None
@@ -174,6 +182,9 @@ class Discode(discord.Client):
             com = l[1]
             await self.sendMessage("**LAST COMMIT INFO:**\n```" + res + "```", channel)
             await self.sendMessage(settings.js["github_repo"] + "/commit/" + com, channel)
+        
+        if content == "!dc file":
+           await self.sendCode(self.codeHistory[author][0], "code" + self.codeHistory[author][1], channel) 
 
         if content == "!dc run":
             if author in self.vm.user_assosiations:
@@ -183,12 +194,17 @@ class Discode(discord.Client):
             self.messageHistory[author] = []
 
             lcontent = self.getLastMessageContent(author) # Contains the content of the raw message
+
             codemodule = self.getCodeModule(lcontent)
             
             if codemodule == None:
                 await self.sendMessage("This code is not valid or there is no language specified", channel)
                 return
             
+            # Cache code
+            self.codeHistory[author] = [self.getRawCode(lcontent), settings.js["prefixes"][codemodule]["filetype"]]
+
+           
             # Now we know that we should run cpp for example,
             # let's start a instance of a vm for the user and run the module,
             # but first let's format his code
@@ -208,8 +224,8 @@ class Discode(discord.Client):
             
             # Instance the class!
             #TODO: GET CODE WITHOUT PREFIX
-            run = eval("languages." + codemodule)(vm_index)
-            await run.run(self.getRawCode(lcontent), self, author, channel)
+            run = eval("languages." + codemodule)(vm_index, self)
+            await run.run(self.getRawCode(lcontent), author, channel)
 
             self.messageHistory.pop(author, None)
 

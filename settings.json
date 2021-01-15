@@ -14,8 +14,14 @@
     "github_repo": "https://github.com/BinarySandia04/Discode",
     "prefixes":
     {
-        "Cpp": ["```cpp", "```c++"],
-        "Python": ["```py", "```python"]
+        "Cpp": {
+		"prefixes": ["```cpp", "```c++"],
+		"filetype": ".cpp"
+	},
+        "Python": {
+		"prefixes": ["```py", "```python"],
+		"filetype": ".py"
+	}
     },
     "debug": false
 }

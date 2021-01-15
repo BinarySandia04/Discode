@@ -1,7 +1,7 @@
 from .base import Base
 
 class Cpp(Base):
-    async def run(self, code, discode, author, channel):
+    async def run(self, code, author, channel):
         self.saveFile(code, "home/main.cc")
 
         self.enterChroot()
@@ -10,7 +10,7 @@ class Cpp(Base):
 
         self.vmExecute("./main")
         
-        await discode.sendMessage("**CODE OUTPUT:**", channel)
+        await self.discode.sendMessage("**CODE OUTPUT:**", channel)
        
         await self.wait(0.1)
 
@@ -19,10 +19,10 @@ class Cpp(Base):
         await self.wait(0.1)
 
         while self.isScreenExecuting():
-            if author in discode.messageHistory:
-                while len(discode.messageHistory[author]) > 0:
-                    self.vmExecute(discode.messageHistory[author][0])
-                    discode.messageHistory[author].pop(0)
+            if author in self.discode.messageHistory:
+                while len(self.discode.messageHistory[author]) > 0:
+                    self.vmExecute(self.discode.messageHistory[author][0])
+                    self.discode.messageHistory[author].pop(0)
 
             await self.wait(1)
 
@@ -35,8 +35,8 @@ class Cpp(Base):
             firstLine = currentLine
 
             if len(log) != 0:
-                await discode.sendMessage("```" + log + "```", channel)
+                await self.discode.sendMessage("```" + log + "```", channel)
 
-        await discode.sendMessage("**End of the program**", channel)
+        await self.discode.sendMessage("**End of the program**", channel)
 
         self.destroySession()

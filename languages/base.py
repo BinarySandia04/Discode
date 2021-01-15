@@ -4,18 +4,19 @@ import asyncio
 import settings
 
 class Base:
-    def __init__(self, vm_index):
+    def __init__(self, vm_index, discode):
         self.vm_index = vm_index
         self._recordStart = -1
         self._recordEnd = -1
+        self.discode = discode
     
-    async def run(self, code, discode):
+    async def run(self, code, author, channel):
         # Run the code!
         pass
 
     async def wait(self, i):
         await asyncio.sleep(i)
-
+    
     def enterChroot(self):
         box.executeScreen(str(self.vm_index), "sudo chroot --userspec=" + settings.js["chroot_username"] + " root" + str(self.vm_index))
     

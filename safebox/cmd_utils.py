@@ -56,3 +56,11 @@ def readFile(fileName):
     with open(PYPATH + fileName, "r") as rfile:
         r = rfile.read()
     return r
+
+def writeFile(fileName, text):
+    print (PYPATH + fileName)
+    with open(PYPATH + fileName, "w") as wfile:
+        wfile.write(text)
+
+def deleteFile(fileName):
+    execute("rm " + PYPATH + fileName)
