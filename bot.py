@@ -17,6 +17,7 @@ import settings
 class Discode(discord.Client):
     lastMessages = {}
     codeHistory = {} 
+    codeMessages = {}
     messageHistory = {}
 
     def __init__(self):
@@ -110,7 +111,7 @@ class Discode(discord.Client):
 
 
     def getLastMessageContent(self, author):
-        return self.lastMessages[author]
+        return self.lastMessages[author][0]
 
     def getRawCode(self, text):
         l = text.split("\n")
@@ -162,7 +163,7 @@ class Discode(discord.Client):
             return
        
         if content.startswith("```"):
-            self.lastMessages[msg.author.id] = msg.content # Cache the content!
+            self.lastMessages[msg.author.id] = [msg.content, msg] # Cache the content!
         
         if content == "!dc servers":
             if author == settings.js["admin_id"]:
@@ -194,6 +195,11 @@ class Discode(discord.Client):
             self.messageHistory[author] = []
 
             lcontent = self.getLastMessageContent(author) # Contains the content of the raw message
+            
+            try:
+                await self.lastMessages[author][1].delete()
+            except discord.NotFound:
+                pass
 
             codemodule = self.getCodeModule(lcontent)
             

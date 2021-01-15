@@ -8,11 +8,14 @@ class Cpp(Base):
 
         self.vmExecute("cd home && g++ main.cc -o main")
 
+        await self.discode.sendMessage("Compiling...", channel)
+        while self.isScreenExecuting():
+            await self.wait(0.05)
+        
+        self.discode.sendMessage("Compiled!", channel)
         self.vmExecute("./main")
         
-        await self.discode.sendMessage("**CODE OUTPUT:**", channel)
-       
-        await self.wait(0.1)
+        await self.discode.sendMessage("**Running...**", channel)
 
         firstLine = len(self.getCompleteLog().split("\n"))
         
@@ -24,7 +27,7 @@ class Cpp(Base):
                     self.vmExecute(self.discode.messageHistory[author][0])
                     self.discode.messageHistory[author].pop(0)
 
-            await self.wait(1)
+            await self.wait(0.1)
 
             completeLog = self.getCompleteLog()
             
